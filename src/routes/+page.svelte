@@ -2,6 +2,7 @@
   import { invoke } from "@tauri-apps/api/core";
 
   let message = "";
+  let message2 = "";
   let signature = "";
   let signature2 = "";
   let verification = "";
@@ -11,7 +12,9 @@
     signature = await invoke("sign", { message });
   }
   async function verify(){
-    verification = await invoke("verify", {signature});
+    invoke("verify", {signature: signature2, message: message2})
+    .catch(console.error)
+    .then(((v)=> verification=v))
   }
 </script>
 
@@ -27,7 +30,8 @@
   <p id="sig">{signature}</p>
 
     <form class="row" on:submit|preventDefault={verify}>
-    <input id="verify-input"  bind:value={signature2} />
+    <input id="verify-input" placeholder="signature" bind:value={signature2} />
+    <input placeholder="message" bind:value={message2} />
     <button type="submit">Verify Message</button>
   </form>
 

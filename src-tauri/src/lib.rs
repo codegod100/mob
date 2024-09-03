@@ -17,7 +17,7 @@ enum Error {
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "oops {}", self)
+        write!(f, "oops")
     }
 }
 
@@ -39,6 +39,17 @@ async fn sign(message: &str, state: State<'_, Mutex<AppState>>) -> Result<String
     Ok(sig)
 }
 
+#[tauri::command]
+async fn verify(
+    message: &str,
+    signature: &str,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<bool, Error> {
+    let state = state.lock().await;
+    let v = state.keypair.verify(message, signature)?;
+    Ok(v)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -49,7 +60,7 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![sign])
+        .invoke_handler(tauri::generate_handler![sign, verify])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
