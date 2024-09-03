@@ -1,9 +1,13 @@
+use std::fmt::Display;
+use std::fs::File;
+use std::io::prelude::*;
 use std::io::Bytes;
 use std::io::Read;
 
 use anyhow::Result;
 use base64::prelude::*;
 use ed25519_dalek::ed25519::signature::Keypair;
+use ed25519_dalek::SecretKey;
 use ed25519_dalek::Signature;
 use ed25519_dalek::Signer;
 use ed25519_dalek::SigningKey;
@@ -49,8 +53,30 @@ impl KeyPair {
         }
     }
 
-    pub fn save(&self, path: Option<&str>) {
-        println!("Saving {:#?} to {}", self.signer, path.unwrap_or_default());
+    pub fn import(&mut self, key: String) -> Result<()> {
+        let b = BASE64_STANDARD.decode(key)?;
+        let mut file = File::create("secret.txt")?;
+        file.write_all(&b)?;
+        let b: [u8; 32] = match b.try_into() {
+            Ok(v) => v,
+            Err(_) => return Err(anyhow::Error::msg("failed to cast bytes")),
+        };
+        let sk = SigningKey::from_bytes(&b);
+        self.signer = Some(sk);
+        Ok(())
+    }
+    pub fn load() -> Result<Self> {
+        let mut buffer = [0; 32];
+        let mut file = File::open("secret.txt")?;
+        file.read(&mut buffer[..])?;
+        let sk = SigningKey::from_bytes(&buffer);
+        let s = Self { signer: Some(sk) };
+        Ok(s)
+    }
+    pub fn export(&self) -> Result<String> {
+        let signer = self.signer()?;
+        let b64 = BASE64_STANDARD.encode(signer.to_bytes());
+        Ok(b64)
     }
 
     fn signer(&self) -> Result<SigningKey> {

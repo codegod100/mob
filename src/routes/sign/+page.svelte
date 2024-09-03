@@ -28,7 +28,7 @@
     <button type="submit">Sign Message</button>
   </form>
 </div>
-<div>
+<div class="flex">
   {#if signed}
     <div>
       <textarea rows="8" cols="40" id="stuff" class="border">
