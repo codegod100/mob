@@ -61,3 +61,6 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+      - uses: Swatinem/rust-cache@v2
+        name: Cache Rust stuff
