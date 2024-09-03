@@ -7,3 +7,5 @@ COPY . .
 RUN bash ./setup.sh
 
 ENV PATH="/root/.cargo/bin:$PATH"
+
+cargo install tauri-cli@2.0.0-rc.9
