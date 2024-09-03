@@ -2,23 +2,33 @@
   import { invoke } from "@tauri-apps/api/core";
 
   let message = "";
-  let message2 = "";
   let signature = "";
-  let signature2 = "";
   let verification = "";
   let publicKey = "";
-  let publicKey2 = "";
+  let tokenStr = "";
+
+  interface Token {
+    publicKey: string;
+    signature: string;
+    message: string;
+  }
+
+  function parseToken(str: string): Token {
+    if (!str) str = "{}";
+    let token = JSON.parse(str);
+    return token;
+  }
+  $: output = JSON.stringify({ publicKey, signature, message });
+  $: token = parseToken(tokenStr);
 
   async function sign() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
     [publicKey, signature] = await invoke("sign", { message });
   }
   async function verify() {
-    verification = await invoke<string>("verify", {
-      publicKey: publicKey2,
-      signature: signature2,
-      message: message2,
-    }).catch((e) => (verification = e));
+    verification = await invoke<string>("verify", token as {}).catch(
+      (e) => (verification = e),
+    );
   }
 </script>
 
@@ -34,18 +44,14 @@
     <button type="submit">Sign Message</button>
   </form>
   <div id="output">
-    <pre>
-Pulic Key: 
-{publicKey}
-
-Signature: 
-{signature}
-    </pre>
+    {output}
   </div>
+  <textarea
+    rows="8"
+    placeholder="copy and paste into here"
+    bind:value={tokenStr}
+  ></textarea>
   <form id="inputs" on:submit|preventDefault={verify}>
-    <input placeholder="public key" bind:value={publicKey2} />
-    <input id="verify-input" placeholder="signature" bind:value={signature2} />
-    <input placeholder="message" bind:value={message2} />
     <button type="submit">Verify Message</button>
   </form>
 
@@ -56,6 +62,8 @@ Signature:
   #output {
     width: 100%;
     text-align: left;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
   }
   #inputs {
     display: block;
@@ -64,8 +72,6 @@ Signature:
   pre {
     display: inline-block;
     width: 600px;
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
     text-align: left;
   }
 
