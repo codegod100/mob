@@ -10,7 +10,14 @@ apt-get install -y \
   vim \
   build-essential \
   openssl \
-  npm
+  npm \
+  libwebkit2gtk-4.1-dev \
+  wget \
+  file \
+  libxdo-dev \
+  libssl-dev \
+  libayatana-appindicator3-dev \
+  librsvg2-dev
 
 ## Install rustup and common components
 curl https://sh.rustup.rs -sSf | sh -s -- -y 
