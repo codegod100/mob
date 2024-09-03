@@ -12,14 +12,15 @@ struct AppState {
 enum Error {
     #[error(transparent)]
     StandardErr(#[from] std::io::Error),
+    #[error(transparent)]
     AnyhowErr(#[from] anyhow::Error),
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "oops")
-    }
-}
+// impl std::fmt::Display for Error {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         write!(f, "oops")
+//     }
+// }
 
 impl serde::Serialize for Error {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

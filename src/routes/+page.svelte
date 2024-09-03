@@ -12,9 +12,7 @@
     signature = await invoke("sign", { message });
   }
   async function verify(){
-    invoke("verify", {signature: signature2, message: message2})
-    .catch(console.error)
-    .then(((v)=> verification=v))
+    verification = await invoke("verify", {signature: signature2, message: message2}).catch(e=> verification = e)
   }
 </script>
 
