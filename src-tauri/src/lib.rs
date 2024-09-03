@@ -33,21 +33,23 @@ impl serde::Serialize for Error {
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-async fn sign(message: &str, state: State<'_, Mutex<AppState>>) -> Result<String, Error> {
+async fn sign(message: &str, state: State<'_, Mutex<AppState>>) -> Result<(String, String), Error> {
     println!("signing");
     let state = state.lock().await;
     let sig = state.keypair.sign(message)?;
-    Ok(sig)
+    let pk = state.keypair.public_key()?;
+    Ok((pk, sig))
 }
 
 #[tauri::command]
 async fn verify(
+    public_key: &str,
     message: &str,
     signature: &str,
     state: State<'_, Mutex<AppState>>,
 ) -> Result<bool, Error> {
     let state = state.lock().await;
-    let v = state.keypair.verify(message, signature)?;
+    let v = state.keypair.verify(public_key, signature, message)?;
     Ok(v)
 }
 

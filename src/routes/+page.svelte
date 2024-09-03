@@ -6,28 +6,44 @@
   let signature = "";
   let signature2 = "";
   let verification = "";
+  let publicKey = "";
+  let publicKey2 = "";
 
   async function sign() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    signature = await invoke("sign", { message });
+    [publicKey, signature] = await invoke("sign", { message });
   }
-  async function verify(){
-    verification = await invoke("verify", {signature: signature2, message: message2}).catch(e=> verification = e)
+  async function verify() {
+    verification = await invoke<string>("verify", {
+      publicKey: publicKey2,
+      signature: signature2,
+      message: message2,
+    }).catch((e) => (verification = e));
   }
 </script>
 
 <div class="container">
   <h1>Welcome to Tauri!</h1>
 
-
   <form class="row" on:submit|preventDefault={sign}>
-    <input id="sign-input" placeholder="Enter a message..." bind:value={message} />
+    <input
+      id="sign-input"
+      placeholder="Enter a message..."
+      bind:value={message}
+    />
     <button type="submit">Sign Message</button>
   </form>
+  <div id="output">
+    <pre>
+Pulic Key: 
+{publicKey}
 
-  <p id="sig">{signature}</p>
-
-    <form class="row" on:submit|preventDefault={verify}>
+Signature: 
+{signature}
+    </pre>
+  </div>
+  <form id="inputs" on:submit|preventDefault={verify}>
+    <input placeholder="public key" bind:value={publicKey2} />
     <input id="verify-input" placeholder="signature" bind:value={signature2} />
     <input placeholder="message" bind:value={message2} />
     <button type="submit">Verify Message</button>
@@ -37,10 +53,21 @@
 </div>
 
 <style>
-  #sig {
-    overflow-wrap: break-word;
+  #output {
+    width: 100%;
+    text-align: left;
+  }
+  #inputs {
+    display: block;
   }
 
+  pre {
+    display: inline-block;
+    width: 600px;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    text-align: left;
+  }
 
   .logo.vite:hover {
     filter: drop-shadow(0 0 2em #747bff);
