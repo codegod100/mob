@@ -23,4 +23,5 @@ rand = "0.8.5"
 ed25519-dalek = {version = "2.1.1", features = ["rand_core"] }
 anyhow = "1.0.86"
 thiserror = "1.0.63"
+base64 = "0.22.1"
 

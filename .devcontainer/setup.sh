@@ -17,7 +17,9 @@ apt-get install -y \
   libxdo-dev \
   libssl-dev \
   libayatana-appindicator3-dev \
-  librsvg2-dev
+  librsvg2-dev \
+  clang \
+  mold
 
 ## Install rustup and common components
 curl https://sh.rustup.rs -sSf | sh -s -- -y 

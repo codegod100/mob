@@ -1,42 +1,45 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
 
-  let name = "";
-  let greetMsg = "";
+  let message = "";
+  let signature = "";
+  let signature2 = "";
+  let verification = "";
 
-  async function greet() {
+  async function sign() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    greetMsg = await invoke("greet", { name });
+    signature = await invoke("sign", { message });
+  }
+  async function verify(){
+    verification = await invoke("verify", {signature});
   }
 </script>
 
 <div class="container">
   <h1>Welcome to Tauri!</h1>
 
-  <div class="row">
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo vite" alt="Vite Logo" />
-    </a>
-    <a href="https://tauri.app" target="_blank">
-      <img src="/tauri.svg" class="logo tauri" alt="Tauri Logo" />
-    </a>
-    <a href="https://kit.svelte.dev" target="_blank">
-      <img src="/svelte.svg" class="logo svelte-kit" alt="SvelteKit Logo" />
-    </a>
-  </div>
 
-  <p>Click on the Skauri, Bite, and SmelteKit logos to learn, bore.</p>
-  <a href="/foo">FOOO!</a>
-
-  <form class="row" on:submit|preventDefault={greet}>
-    <input id="greet-input" placeholder="Enter a name..." bind:value={name} />
+  <form class="row" on:submit|preventDefault={sign}>
+    <input id="sign-input" placeholder="Enter a message..." bind:value={message} />
     <button type="submit">Sign Message</button>
   </form>
 
-  <p>{greetMsg}</p>
+  <p id="sig">{signature}</p>
+
+    <form class="row" on:submit|preventDefault={verify}>
+    <input id="verify-input"  bind:value={signature2} />
+    <button type="submit">Verify Message</button>
+  </form>
+
+  <p>{verification}</p>
 </div>
 
 <style>
+  #sig {
+    overflow-wrap: break-word;
+  }
+
+
   .logo.vite:hover {
     filter: drop-shadow(0 0 2em #747bff);
   }
