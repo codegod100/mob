@@ -1,15 +1,16 @@
-<script>
+<script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
   let key = "";
+  let stuff: HTMLTextAreaElement;
 </script>
 
 <div>
   <div>
     <textarea
-      id="stuff"
       placeholder="Paste secret key"
       class="border"
       bind:value={key}
+      bind:this={stuff}
     ></textarea>
   </div>
   <div>

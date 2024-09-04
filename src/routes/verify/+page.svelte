@@ -5,7 +5,7 @@
   let verification = "";
   let publicKey = "";
   let tokenStr = "";
-  let signed = false;
+  let stuff: HTMLTextAreaElement;
 
   interface Token {
     publicKey: string;
@@ -29,17 +29,16 @@
 </script>
 
 <textarea
-  id="bucket"
   rows="8"
   class="border mt-10 w-full"
   placeholder="copy and paste into here"
+  bind:this={stuff}
   bind:value={tokenStr}
-  on:click={(t) => {
-    let copyText = document.querySelector("#bucket");
-    copyText.select();
+  on:click={() => {
+    stuff.select();
   }}
 ></textarea>
-<form id="inputs" on:submit|preventDefault={verify}>
+<form on:submit|preventDefault={verify}>
   <button type="submit">Verify Message</button>
 </form>
 

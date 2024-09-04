@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { invoke } from "@tauri-apps/api/core";
   let secret = "";
+  let stuff: HTMLTextAreaElement;
   let publicKey = "";
   onMount(async () => {
     [publicKey] = await invoke<[string, string]>("sign", {
@@ -29,10 +30,10 @@
       >
     </div>
     <div>
-      {#if secret}<textarea id="stuff" class="border">{secret}</textarea><button
+      {#if secret}<textarea bind:this={stuff} class="border">{secret}</textarea
+        ><button
           on:click={() => {
-            let copyText = document.querySelector("#stuff");
-            copyText.select();
+            stuff.select();
             document.execCommand("copy");
           }}>Copy to clipboard</button
         >{/if}
