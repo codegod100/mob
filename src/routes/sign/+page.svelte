@@ -23,9 +23,9 @@
         if (stuff) stuff.value = "";
       }}
     />
-    <button type="submit" class="border p-2">Sign Message</button>
+    <button type="submit" class="border p-2 ml-2">Sign Message</button>
   </form>
-  <div class="flex">
+  <div class="flex mt-5">
     {#if signed}
       <div>
         <textarea rows="8" cols="40" bind:this={stuff} class="border">
