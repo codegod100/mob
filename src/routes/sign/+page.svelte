@@ -13,37 +13,38 @@
   }
 </script>
 
-<div>
+<div class="p-5">
   <form on:submit|preventDefault={sign}>
     <input
-      class="border"
+      class="border p-2"
       placeholder="Enter a message..."
       bind:value={message}
       on:input={() => {
         if (stuff) stuff.value = "";
       }}
     />
-    <button type="submit">Sign Message</button>
+    <button type="submit" class="border p-2">Sign Message</button>
   </form>
-</div>
-<div class="flex">
-  {#if signed}
-    <div>
-      <textarea rows="8" cols="40" bind:this={stuff} class="border">
-        {output}
-      </textarea>
-    </div>
-    <div>
-      <button
-        on:click={() => {
-          stuff.select();
-          document.execCommand("copy");
-        }}>Copy to clipboard</button
-      >
-    </div>
-  {/if}
-</div>
+  <div class="flex">
+    {#if signed}
+      <div>
+        <textarea rows="8" cols="40" bind:this={stuff} class="border">
+          {output}
+        </textarea>
+      </div>
+      <div>
+        <button
+          class="border p-2 ml-3"
+          on:click={() => {
+            stuff.select();
+            document.execCommand("copy");
+          }}>Copy to clipboard</button
+        >
+      </div>
+    {/if}
+  </div>
 
-<div>
-  <a href="/">Back</a>
+  <div class="mt-5">
+    <a href="/" class="border p-2">Back</a>
+  </div>
 </div>

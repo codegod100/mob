@@ -18,25 +18,36 @@
     <div>If that's not right, import your secret key</div>
   </div>
 
-  <div><a href="/sign">Create a signature</a></div>
-  <div><a href="/verify">Verify a signature</a></div>
-  <div><a href="/import">Import Secret Key</a></div>
+  <div class="mb-5">
+    <a href="/sign" class="border p-2 mb-10">Create a signature</a>
+  </div>
+  <div class="mb-5">
+    <a href="/verify" class="border p-2">Verify a signature</a>
+  </div>
+  <div class="mb-3">
+    <a href="/import" class="border p-2">Import Secret Key</a>
+  </div>
   <div>
     <div>
       <button
+        class="border p-2 mb-3"
         on:click={async () => {
           secret = await invoke("export");
         }}>Export Secret Key</button
       >
-    </div>
-    <div>
-      {#if secret}<textarea bind:this={stuff} class="border">{secret}</textarea
-        ><button
-          on:click={() => {
-            stuff.select();
-            document.execCommand("copy");
-          }}>Copy to clipboard</button
-        >{/if}
+      <div class="flex justify-center">
+        {#if secret}
+          <textarea bind:this={stuff} class="border">{secret}</textarea>
+
+          <button
+            class="border p-2 ml-3"
+            on:click={() => {
+              stuff.select();
+              document.execCommand("copy");
+            }}>Copy to clipboard</button
+          >
+        {/if}
+      </div>
     </div>
   </div>
 </div>

@@ -28,21 +28,23 @@
   }
 </script>
 
-<textarea
-  rows="8"
-  class="border mt-10 w-full"
-  placeholder="copy and paste into here"
-  bind:this={stuff}
-  bind:value={tokenStr}
-  on:click={() => {
-    stuff.select();
-  }}
-></textarea>
-<form on:submit|preventDefault={verify}>
-  <button type="submit">Verify Message</button>
-</form>
+<div class="p-5">
+  <textarea
+    rows="8"
+    class="border w-full"
+    placeholder="copy and paste into here"
+    bind:this={stuff}
+    bind:value={tokenStr}
+    on:click={() => {
+      stuff.select();
+    }}
+  ></textarea>
+  <form on:submit|preventDefault={verify}>
+    <button type="submit" class="border p-2">Verify Message</button>
+  </form>
 
-<p>{verification}</p>
-<div>
-  <a href="/">Back</a>
+  <p>{verification}</p>
+  <div class="mt-5">
+    <a href="/" class="border p-2">Back</a>
+  </div>
 </div>
