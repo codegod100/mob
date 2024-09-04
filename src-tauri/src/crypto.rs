@@ -68,7 +68,11 @@ impl KeyPair {
     pub fn load() -> Result<Self> {
         let mut buffer = [0; 32];
         let mut file = File::open("secret.txt")?;
-        file.read(&mut buffer[..])?;
+        let br = file.read(&mut buffer[..])?;
+        println!("bytes read: {:#?}", br);
+        if br == 0 {
+            return Err(anyhow::Error::msg("file empty"));
+        }
         let sk = SigningKey::from_bytes(&buffer);
         let s = Self { signer: Some(sk) };
         Ok(s)
