@@ -1,18 +1,10 @@
-use std::fmt::Display;
 use std::fs::File;
 use std::io::prelude::*;
-use std::io::Bytes;
 use std::io::Read;
 
-use anyhow::Result;
+use anyhow::{Error, Result};
 use base64::prelude::*;
-use ed25519_dalek::ed25519::signature::Keypair;
-use ed25519_dalek::SecretKey;
-use ed25519_dalek::Signature;
-use ed25519_dalek::Signer;
-use ed25519_dalek::SigningKey;
-use ed25519_dalek::Verifier;
-use ed25519_dalek::VerifyingKey;
+use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
 use rand::rngs::OsRng;
 
 #[derive(Default, Debug)]
@@ -38,7 +30,7 @@ impl KeyPair {
         let vk = BASE64_STANDARD.decode(public_key)?;
         let vk: [u8; 32] = match vk.try_into() {
             Ok(v) => v,
-            Err(_) => return Err(anyhow::Error::msg("failed to cast bytes")),
+            Err(_) => return Err(Error::msg("failed to cast bytes")),
         };
         let vk = VerifyingKey::from_bytes(&vk)?;
         let message = message.as_bytes();
@@ -59,7 +51,7 @@ impl KeyPair {
         file.write_all(&b)?;
         let b: [u8; 32] = match b.try_into() {
             Ok(v) => v,
-            Err(_) => return Err(anyhow::Error::msg("failed to cast bytes")),
+            Err(_) => return Err(Error::msg("failed to cast bytes")),
         };
         let sk = SigningKey::from_bytes(&b);
         self.signer = Some(sk);
@@ -71,7 +63,7 @@ impl KeyPair {
         let br = file.read(&mut buffer[..])?;
         println!("bytes read: {:#?}", br);
         if br == 0 {
-            return Err(anyhow::Error::msg("file empty"));
+            return Err(Error::msg("file empty"));
         }
         let sk = SigningKey::from_bytes(&buffer);
         let s = Self { signer: Some(sk) };
@@ -86,7 +78,7 @@ impl KeyPair {
     fn signer(&self) -> Result<SigningKey> {
         match &self.signer {
             Some(signer) => Ok(signer.clone()),
-            None => Err(anyhow::Error::msg("missing signing key")),
+            None => Err(Error::msg("missing signing key")),
         }
     }
     pub fn public_key(&self) -> Result<String> {
