@@ -1,11 +1,11 @@
 use crypto::KeyPair;
 use tauri::{async_runtime::Mutex, Manager, State};
-
 mod crypto;
 
 #[derive(Default, Debug)]
 struct AppState {
     keypair: KeyPair,
+    testing: String,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -53,6 +53,27 @@ async fn verify(
     Ok(v)
 }
 
+macro_rules! command {
+    ($name:tt, $(let $v:tt: $t:ty,)* $closure:expr, $ret:ty) => {
+        fn infer<F>(f: F) -> F
+        where
+            F: FnOnce(&AppState, $($t),*) -> $ret,
+        {
+            f
+        }
+
+        #[tauri::command]
+        async fn $name($($v: $t,)* state: State<'_, Mutex<AppState>>) -> Result<$ret, Error> {
+            let state = state.lock().await;
+            Ok(infer($closure)(&state, $($v),*))
+        }
+    };
+}
+command!(foo, let x: i32, |state,x| {
+    println!("x: {}",x);
+    state.testing.clone()
+}, String);
+
 #[tauri::command]
 async fn export(state: State<'_, Mutex<AppState>>) -> Result<String, Error> {
     let state = state.lock().await;
@@ -80,11 +101,14 @@ pub fn run() {
                     KeyPair::new()
                 }
             };
-            app.manage(Mutex::new(AppState { keypair: kp }));
+            app.manage(Mutex::new(AppState {
+                keypair: kp,
+                testing: "yolo".to_string(),
+            }));
             Ok(())
         })
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![sign, verify, export, import])
+        .invoke_handler(tauri::generate_handler![sign, verify, export, import, foo])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -5,6 +5,8 @@
   let stuff: HTMLTextAreaElement;
   let publicKey = "";
   onMount(async () => {
+    let f = await invoke("foo", { x: 67 });
+    console.log("F: ", f);
     [publicKey] = await invoke<[string, string]>("sign", {
       message: "",
     });
