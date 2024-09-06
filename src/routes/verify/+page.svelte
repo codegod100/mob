@@ -1,28 +1,32 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
+  import { stringify } from "postcss";
   let message = "";
   let signature = "";
   let verification = "";
   let publicKey = "";
   let tokenStr = "";
   let stuff: HTMLTextAreaElement;
-
-  interface Token {
-    publicKey: string;
-    signature: string;
-    message: string;
-  }
+  type Token = Record<string, string>;
 
   function parseToken(str: string): Token {
-    if (!str) str = "{}";
-    let token = JSON.parse(str);
-    return token;
+    try {
+      let token = JSON.parse(str);
+      return token;
+    } catch (e) {
+      return {
+        error: "Couldn't parse input; please paste a valid signature",
+      };
+    }
   }
-  $: output = JSON.stringify({ publicKey, signature, message });
   $: token = parseToken(tokenStr);
 
   async function verify() {
-    verification = await invoke<string>("verify", token as {}).catch(
+    if (token.error) {
+      verification = token.error;
+      return;
+    }
+    verification = await invoke<string>("verify", token).catch(
       (e) => (verification = e),
     );
   }
