@@ -48,11 +48,11 @@ impl KeyPair {
     pub fn import(&mut self, key: String) -> Result<()> {
         let b = BASE64_STANDARD.decode(key)?;
         let mut file = File::create("secret.txt")?;
-        file.write_all(&b)?;
         let b: [u8; 32] = match b.try_into() {
             Ok(v) => v,
             Err(_) => return Err(Error::msg("failed to cast bytes")),
         };
+        file.write_all(&b)?;
         let sk = SigningKey::from_bytes(&b);
         self.signer = Some(sk);
         Ok(())
