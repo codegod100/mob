@@ -46,11 +46,6 @@ async fn verify(
     Ok(v)
 }
 
-// command!(foo, let x: i32, |state,x| {
-//     println!("x: {}",x);
-//     state.testing.clone()
-// }, String);
-
 #[tauri::command]
 async fn export(state: State<'_, Mutex<AppState>>) -> Result<String, Error> {
     let state = state.lock().await;
