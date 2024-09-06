@@ -5,7 +5,6 @@ mod crypto;
 #[derive(Default, Debug)]
 struct AppState {
     keypair: KeyPair,
-    testing: String,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -15,12 +14,6 @@ enum Error {
     #[error(transparent)]
     AnyhowErr(#[from] anyhow::Error),
 }
-
-// impl std::fmt::Display for Error {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         write!(f, "oops")
-//     }
-// }
 
 impl serde::Serialize for Error {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -53,26 +46,10 @@ async fn verify(
     Ok(v)
 }
 
-macro_rules! command {
-    ($name:tt, $(let $v:tt: $t:ty,)* $closure:expr, $ret:ty) => {
-        fn infer<F>(f: F) -> F
-        where
-            F: FnOnce(&AppState, $($t),*) -> $ret,
-        {
-            f
-        }
-
-        #[tauri::command]
-        async fn $name($($v: $t,)* state: State<'_, Mutex<AppState>>) -> Result<$ret, Error> {
-            let state = state.lock().await;
-            Ok(infer($closure)(&state, $($v),*))
-        }
-    };
-}
-command!(foo, let x: i32, |state,x| {
-    println!("x: {}",x);
-    state.testing.clone()
-}, String);
+// command!(foo, let x: i32, |state,x| {
+//     println!("x: {}",x);
+//     state.testing.clone()
+// }, String);
 
 #[tauri::command]
 async fn export(state: State<'_, Mutex<AppState>>) -> Result<String, Error> {
@@ -101,14 +78,11 @@ pub fn run() {
                     KeyPair::new()
                 }
             };
-            app.manage(Mutex::new(AppState {
-                keypair: kp,
-                testing: "yolo".to_string(),
-            }));
+            app.manage(Mutex::new(AppState { keypair: kp }));
             Ok(())
         })
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![sign, verify, export, import, foo])
+        .invoke_handler(tauri::generate_handler![sign, verify, export, import])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
