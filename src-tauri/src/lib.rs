@@ -61,6 +61,13 @@ async fn import(state: State<'_, Mutex<AppState>>, key: String) -> Result<String
     Ok("ok".to_string())
 }
 
+#[tauri::command]
+async fn reset(state: State<'_, Mutex<AppState>>) -> Result<String, Error> {
+    let mut state = state.lock().await;
+    state.keypair.reset();
+    Ok("ok".to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default()
@@ -95,7 +102,9 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![sign, verify, export, import])
+        .invoke_handler(tauri::generate_handler![
+            sign, verify, export, import, reset
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -2,9 +2,6 @@ use anyhow::{Error, Result};
 use base64::prelude::*;
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
 use rand::rngs::OsRng;
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::Read;
 
 pub struct KeyPair {
     signer: Option<SigningKey>,
@@ -67,6 +64,10 @@ impl KeyPair {
         let sk = SigningKey::from_bytes(&b);
         self.signer = Some(sk);
         Ok(())
+    }
+
+    pub fn reset(&mut self) -> () {
+        self.signer = KeyPair::new().signer;
     }
 
     pub fn export(&self) -> Result<String> {
