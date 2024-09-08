@@ -1,8 +1,10 @@
 use crypto::KeyPair;
 use tauri::{async_runtime::Mutex, Manager, State};
 mod crypto;
+use std::path::PathBuf;
+use tauri::Wry;
+use tauri_plugin_store::{with_store, StoreCollection};
 
-#[derive(Default, Debug)]
 struct AppState {
     keypair: KeyPair,
 }
@@ -27,7 +29,6 @@ impl serde::Serialize for Error {
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 async fn sign(message: &str, state: State<'_, Mutex<AppState>>) -> Result<(String, String), Error> {
-    println!("signing");
     let state = state.lock().await;
     let sig = state.keypair.sign(message)?;
     let pk = state.keypair.public_key()?;
@@ -62,17 +63,34 @@ async fn import(state: State<'_, Mutex<AppState>>, key: String) -> Result<String
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_updater::Builder::new().build())
+    let builder = tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_devtools::init());
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    let builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+    builder
         .setup(|app| {
-            let kp = KeyPair::load();
-            let kp = match kp {
-                Ok(kp) => kp,
-                Err(e) => {
-                    eprintln!("error loading key: {}", e);
-                    KeyPair::new()
+            let stores = app
+                .handle()
+                .try_state::<StoreCollection<Wry>>()
+                .ok_or("Store not found")?;
+            let path = PathBuf::from("store.bin");
+            let mut key_str: Option<String> = None;
+            with_store(app.handle().clone(), stores, path, |store| {
+                let key = store.get("key");
+                if let Some(key) = key {
+                    if let Some(key) = key.as_str() {
+                        println!("Loading with key discovered in store");
+                        key_str = Some(key.to_string());
+                    }
                 }
+                Ok(())
+            })?;
+            let kp = match key_str {
+                Some(key_str) => KeyPair::new_with_key(&key_str)?,
+                None => KeyPair::new(),
             };
+
             app.manage(Mutex::new(AppState { keypair: kp }));
             Ok(())
         })

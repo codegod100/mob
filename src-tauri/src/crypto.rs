@@ -1,23 +1,35 @@
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::Read;
-
 use anyhow::{Error, Result};
 use base64::prelude::*;
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
 use rand::rngs::OsRng;
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::Read;
 
-#[derive(Default, Debug)]
 pub struct KeyPair {
     signer: Option<SigningKey>,
 }
 impl KeyPair {
+    /// Generate a new keypair with a random key
     pub fn new() -> Self {
         let mut csprng = OsRng {};
         let keypair = SigningKey::generate(&mut csprng);
         Self {
             signer: Some(keypair),
         }
+    }
+
+    /// Generate a new keypair with the provided b64 encoded key
+    pub fn new_with_key(key: &str) -> Result<Self> {
+        let b = BASE64_STANDARD.decode(key)?;
+        let b: [u8; 32] = match b.try_into() {
+            Ok(v) => v,
+            Err(_) => return Err(Error::msg("failed to cast bytes")),
+        };
+
+        let sk = SigningKey::from_bytes(&b);
+        let s = Self { signer: Some(sk) };
+        Ok(s)
     }
     pub fn sign(&self, message: &str) -> Result<String> {
         let signer = self.signer()?;
@@ -47,28 +59,16 @@ impl KeyPair {
 
     pub fn import(&mut self, key: String) -> Result<()> {
         let b = BASE64_STANDARD.decode(key)?;
-        let mut file = File::create("secret.txt")?;
         let b: [u8; 32] = match b.try_into() {
             Ok(v) => v,
             Err(_) => return Err(Error::msg("failed to cast bytes")),
         };
-        file.write_all(&b)?;
+
         let sk = SigningKey::from_bytes(&b);
         self.signer = Some(sk);
         Ok(())
     }
-    pub fn load() -> Result<Self> {
-        let mut buffer = [0; 32];
-        let mut file = File::open("secret.txt")?;
-        let br = file.read(&mut buffer[..])?;
-        println!("bytes read: {:#?}", br);
-        if br == 0 {
-            return Err(Error::msg("file empty"));
-        }
-        let sk = SigningKey::from_bytes(&buffer);
-        let s = Self { signer: Some(sk) };
-        Ok(s)
-    }
+
     pub fn export(&self) -> Result<String> {
         let signer = self.signer()?;
         let b64 = BASE64_STANDARD.encode(signer.to_bytes());

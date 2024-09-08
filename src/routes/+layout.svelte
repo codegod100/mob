@@ -1,5 +1,9 @@
 <script>
-  import "../app.css";
+    import "../app.css";
 </script>
 
-<slot />
+<html lang="en">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <slot />
+</html>
