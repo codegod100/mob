@@ -65,7 +65,8 @@ async fn import(state: State<'_, Mutex<AppState>>, key: String) -> Result<String
 async fn reset(state: State<'_, Mutex<AppState>>) -> Result<String, Error> {
     let mut state = state.lock().await;
     state.keypair.reset();
-    Ok("ok".to_string())
+    let e = state.keypair.export()?;
+    Ok(e)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

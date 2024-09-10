@@ -10,6 +10,13 @@
             message: "",
         });
     }
+    async function resetKey() {
+        const store = new Store("store.bin");
+        let key: string = await invoke("reset");
+        await store.set("key", key);
+        await store.save();
+        await loadKey();
+    }
     onMount(async () => {
         await loadKey();
     });
@@ -68,15 +75,8 @@
             </div>
         </div>
         <div>
-            <button
-                class="border p-2"
-                on:click={async () => {
-                    const store = new Store("store.bin");
-                    await store.delete("key");
-                    await store.save();
-                    await invoke("reset");
-                    await loadKey();
-                }}>Reset Secret Key</button
+            <button class="border p-2" on:click={resetKey}
+                >Reset Secret Key</button
             >
         </div>
     </div>
